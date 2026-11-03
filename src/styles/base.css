@@ -1,0 +1,80 @@
+@import './tokens.css';
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei',
+    'PingFang SC', sans-serif;
+  font-size: var(--fs-base);
+  color: var(--c-text);
+  background: var(--c-bg);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+::selection {
+  background: #cfd4ff;
+}
+
+/* 细滚动条，桌面端观感更干净 */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #dfe2e8;
+  border: 2px solid transparent;
+  background-clip: content-box;
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #cdd2da;
+  background-clip: content-box;
+}
+
+@media (max-width: 960px) {
+  body {
+    overflow: auto;
+  }
+}
+
+/* ---------- JSON 语法高亮 ----------
+   代码区内容由 v-html 注入，拿不到 scoped 的 data 属性，
+   所以这几个类必须放在全局样式里。 */
+.tok-key {
+  color: #0550ae;
+}
+.tok-str {
+  color: #0a7d4f;
+}
+.tok-num {
+  color: #b5451a;
+}
+.tok-bool {
+  color: #8250df;
+}
+.tok-null {
+  color: #8250df;
+  font-style: italic;
+}
