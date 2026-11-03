@@ -127,7 +127,7 @@ watch(
       <OutputPanel
         :output="output"
         :error="error"
-        :lang="tool.lang"
+        :lang="activeMode?.lang || tool.lang"
         :action-label="actionLabel"
       />
     </div>

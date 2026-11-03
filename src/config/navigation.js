@@ -15,6 +15,11 @@ const RAW_GROUPS = [
     name: '编码转换',
     items: ['encode-base64', 'encode-url'],
   },
+  {
+    id: 'convert',
+    name: '格式转换',
+    items: ['json-xml'],
+  },
 ]
 
 /** 渲染用结构：[{ id, name, items: [{ id, name }] }] */

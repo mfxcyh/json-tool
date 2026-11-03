@@ -28,7 +28,8 @@ src/
 │   ├── json.js                 解析 + 原生报错转行列定位
 │   ├── highlight.js            JSON 语法高亮（先转义再着色）
 │   ├── text.js                 HTML 转义
-│   └── encode.js               UTF-8 安全的 Base64
+│   ├── encode.js               UTF-8 安全的 Base64
+│   └── xml.js                  JSON ⇄ XML 互转（@attr / #text / 数组约定）
 ├── components/
 │   ├── layout/AppSidebar.vue   侧边栏容器
 │   ├── layout/NavGroup.vue     一级分组 + 二级项

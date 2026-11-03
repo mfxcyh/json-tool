@@ -1,4 +1,5 @@
 import { base64Decode, base64Encode, urlDecode, urlEncode } from '@/utils/encode'
+import { jsonToXml, xmlToJson } from '@/utils/xml'
 
 /**
  * 工具注册表 —— 新增工具只需在这里加一条，导航、路由、页面会自动接上。
@@ -52,6 +53,37 @@ export const TOOLS = {
       JSON.parse(text) // 先校验，非法直接抛 SyntaxError
       return JSON.stringify(text)
     },
+  },
+
+  'json-xml': {
+    id: 'json-xml',
+    name: 'JSON ⇄ XML',
+    desc: 'JSON 与 XML 互转：数组转同名重复元素、XML 属性转 @attr，层级不丢失',
+    action: '转 XML',
+    lang: 'xml',
+    placeholder: '转 XML：粘贴 JSON；转 JSON：粘贴 XML 文本',
+    sample:
+      '{"name":"智能马桶","price":2999,"tags":["卫浴","爆款"],"stock":{"warehouse":"北京仓","count":18}}',
+    transform: (text) => jsonToXml(text),
+    defaultMode: 'to-xml',
+    modes: [
+      {
+        key: 'to-xml',
+        label: '转 XML',
+        lang: 'xml',
+        sample:
+          '{"name":"智能马桶","price":2999,"tags":["卫浴","爆款"],"stock":{"warehouse":"北京仓","count":18}}',
+        transform: (text) => jsonToXml(text),
+      },
+      {
+        key: 'to-json',
+        label: '转 JSON',
+        lang: 'json',
+        sample:
+          '<?xml version="1.0" encoding="UTF-8"?>\n<root>\n  <name>智能马桶</name>\n  <price>2999</price>\n  <tag>卫浴</tag>\n  <tag>爆款</tag>\n  <stock>\n    <warehouse>北京仓</warehouse>\n    <count>18</count>\n  </stock>\n</root>',
+        transform: (text) => xmlToJson(text),
+      },
+    ],
   },
 
   'encode-base64': {
