@@ -15,6 +15,13 @@ const routes = [
     meta: { toolId: 'color-convert' },
   },
   {
+    // 图片 ⇄ Base64 也是文件型交互，走专属视图
+    path: '/image-base64',
+    name: 'image-base64',
+    component: () => import('@/views/ImageBase64View.vue'),
+    meta: { toolId: 'image-base64' },
+  },
+  {
     path: '/:toolId',
     name: 'tool',
     component: ToolView,

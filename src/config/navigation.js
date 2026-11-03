@@ -18,7 +18,7 @@ const RAW_GROUPS = [
   {
     id: 'convert',
     name: '格式转换',
-    items: ['json-xml'],
+    items: ['json-xml', 'image-base64'],
   },
   {
     id: 'color',

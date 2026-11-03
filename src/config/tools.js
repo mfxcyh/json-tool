@@ -93,6 +93,13 @@ export const TOOLS = {
     // 专属视图 ColorView 渲染，此处仅提供导航与页头文案
   },
 
+  'image-base64': {
+    id: 'image-base64',
+    name: '图片 ⇄ Base64',
+    desc: '图片转 Data URI（选文件/拖拽/粘贴截图），Base64 转图片预览与下载',
+    // 专属视图 ImageBase64View 渲染，此处仅提供导航与页头文案
+  },
+
   'encode-base64': {
     id: 'encode-base64',
     name: 'Base64 编解码',

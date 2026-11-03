@@ -30,7 +30,8 @@ src/
 │   ├── text.js                 HTML 转义
 │   ├── encode.js               UTF-8 安全的 Base64
 │   ├── xml.js                  JSON ⇄ XML 互转（@attr / #text / 数组约定）
-│   └── color.js                HEX ⇄ RGB ⇄ HSL 换算与格式解析
+│   ├── color.js                HEX ⇄ RGB ⇄ HSL 换算与格式解析
+│   └── imageBase64.js          图片 ⇄ Base64（data URI 解析与魔数嗅探）
 ├── components/
 │   ├── layout/AppSidebar.vue   侧边栏容器
 │   ├── layout/NavGroup.vue     一级分组 + 二级项
@@ -42,6 +43,7 @@ src/
 └── views/
     ├── ToolView.vue            通用工具页，按路由参数取工具
     ├── ColorView.vue           颜色转换专属页（拾色器 + 表单联动）
+    ├── ImageBase64View.vue     图片 ⇄ Base64 专属页（拖放/粘贴 + 预览下载）
     └── NotFoundView.vue
 ```
 
