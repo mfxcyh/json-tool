@@ -20,6 +20,16 @@ const MODES = [
 ]
 const mode = ref('to-b64')
 
+/** 与文本工具一致：切换 tab 即清空输入与结果 */
+function switchMode(key) {
+  if (key === mode.value) return
+  mode.value = key
+  fileResult.value = null
+  fileError.value = ''
+  b64Text.value = ''
+  b64Error.value = ''
+}
+
 /* ---------- 方向一：图片 → Base64 ---------- */
 const fileResult = ref(null) // { name, type, size, dataUri }
 const fileError = ref('')
@@ -123,7 +133,7 @@ function clearCurrent() {
               type="button"
               class="mode-switch__btn"
               :class="{ 'mode-switch__btn--active': item.key === mode }"
-              @click="mode = item.key"
+              @click="switchMode(item.key)"
             >
               {{ item.label }}
             </button>
