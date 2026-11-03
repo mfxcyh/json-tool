@@ -13,7 +13,14 @@ import ToolHeader from '@/components/tool/ToolHeader.vue'
 const tool = getTool('image-base64')
 const groupName = getGroupName('image-base64')
 
-/* ---------- 图片 → Base64 ---------- */
+/** 与文本工具的 编码/解码 切换一致：tab 只换方向，不换页面 */
+const MODES = [
+  { key: 'to-b64', label: '图片 → Base64' },
+  { key: 'to-img', label: 'Base64 → 图片' },
+]
+const mode = ref('to-b64')
+
+/* ---------- 方向一：图片 → Base64 ---------- */
 const fileResult = ref(null) // { name, type, size, dataUri }
 const fileError = ref('')
 const dragOver = ref(false)
@@ -21,7 +28,6 @@ const fileInput = ref(null)
 const outCopied = useClipboard()
 const rawCopied = useClipboard()
 
-/** data URI 里裸 base64 部分（单独提供复制） */
 const rawBase64 = computed(() => {
   const idx = fileResult.value?.dataUri.indexOf(',') ?? -1
   return idx >= 0 ? fileResult.value.dataUri.slice(idx + 1) : ''
@@ -52,6 +58,7 @@ function onDrop(event) {
 
 /** 全局粘贴：截图后 Ctrl+V 直接转 */
 function onPaste(event) {
+  if (mode.value !== 'to-b64') return
   const item = Array.from(event.clipboardData?.items || []).find((i) =>
     i.type.startsWith('image/'),
   )
@@ -61,7 +68,7 @@ function onPaste(event) {
 onMounted(() => document.addEventListener('paste', onPaste))
 onBeforeUnmount(() => document.removeEventListener('paste', onPaste))
 
-/* ---------- Base64 → 图片 ---------- */
+/* ---------- 方向二：Base64 → 图片 ---------- */
 const b64Text = ref('')
 const b64Error = ref('')
 const imgBroken = ref(false)
@@ -88,6 +95,15 @@ function download() {
   link.download = `image.${parsed.value.ext}`
   link.click()
 }
+
+function clearCurrent() {
+  if (mode.value === 'to-b64') {
+    fileResult.value = null
+    fileError.value = ''
+  } else {
+    b64Text.value = ''
+  }
+}
 </script>
 
 <template>
@@ -95,16 +111,32 @@ function download() {
     <ToolHeader :tool="tool" :group-name="groupName" />
 
     <div class="img-view__main">
-      <!-- 图片 → Base64 -->
+      <!-- 输入 -->
       <section class="pane">
         <header class="pane__head">
-          <span class="pane__title">图片 → Base64</span>
+          <span class="pane__title">输入</span>
+
+          <div class="mode-switch" role="group" aria-label="转换方向">
+            <button
+              v-for="item in MODES"
+              :key="item.key"
+              type="button"
+              class="mode-switch__btn"
+              :class="{ 'mode-switch__btn--active': item.key === mode }"
+              @click="mode = item.key"
+            >
+              {{ item.label }}
+            </button>
+          </div>
+
           <span class="pane__spacer" />
-          <span v-if="fileError" class="pane__err">{{ fileError }}</span>
+          <AppButton variant="ghost" @click="clearCurrent">清空</AppButton>
         </header>
 
-        <div class="pane__body encode">
+        <div class="pane__body">
+          <!-- 图片 → Base64：拖放区 -->
           <div
+            v-if="mode === 'to-b64'"
             class="drop"
             :class="{ 'drop--over': dragOver }"
             role="button"
@@ -125,6 +157,7 @@ function download() {
             />
             <template v-if="fileResult">
               <img class="drop__preview" :src="fileResult.dataUri" alt="预览" />
+              <div class="drop__name">{{ fileResult.name || '剪贴板图片' }} · {{ formatBytes(fileResult.size) }}</div>
             </template>
             <template v-else>
               <svg
@@ -147,60 +180,76 @@ function download() {
             </template>
           </div>
 
-          <template v-if="fileResult">
-            <div class="meta">
-              {{ fileResult.name || '剪贴板图片' }} · {{ fileResult.type }} ·
-              原始 {{ formatBytes(fileResult.size) }} → Base64 约
-              {{ formatBytes(Math.ceil((rawBase64.length * 3) / 4)) }}
-            </div>
-            <textarea
-              class="code-out"
-              :value="fileResult.dataUri"
-              readonly
-              spellcheck="false"
-            ></textarea>
-            <div class="actions">
-              <AppButton @click="outCopied.writeText(fileResult.dataUri)">
-                {{ outCopied.copied.value ? '已复制' : '复制 Data URI' }}
-              </AppButton>
-              <AppButton @click="rawCopied.writeText(rawBase64)">
-                {{ rawCopied.copied.value ? '已复制' : '复制纯 Base64' }}
-              </AppButton>
-            </div>
-          </template>
-        </div>
-      </section>
-
-      <!-- Base64 → 图片 -->
-      <section class="pane">
-        <header class="pane__head">
-          <span class="pane__title">Base64 → 图片</span>
-          <span class="pane__spacer" />
-          <span v-if="b64Error" class="pane__err">{{ b64Error }}</span>
-        </header>
-
-        <div class="pane__body decode">
+          <!-- Base64 → 图片：文本输入 -->
           <textarea
+            v-else
             v-model="b64Text"
             class="code-in"
             spellcheck="false"
             placeholder="粘贴 data:image/png;base64,xxxx 或裸 Base64 字符串（支持带换行）"
           ></textarea>
+        </div>
+      </section>
 
-          <template v-if="parsed">
-            <div v-if="imgBroken" class="decode__broken">图片解码失败：Base64 内容可能不完整或已损坏</div>
-            <img
-              v-else
-              class="decode__img"
-              :src="parsed.dataUri"
-              alt="解码预览"
-              @error="onImgError"
-            />
-            <div class="meta">
-              {{ parsed.mime }} · {{ formatBytes(parsed.bytes) }}
+      <!-- 输出 -->
+      <section class="pane">
+        <header class="pane__head">
+          <span class="pane__title">输出</span>
+          <span class="pane__spacer" />
+          <span v-if="mode === 'to-b64' && fileError" class="pane__err">{{ fileError }}</span>
+          <span v-if="mode === 'to-img' && b64Error" class="pane__err">{{ b64Error }}</span>
+        </header>
+
+        <div class="pane__body pane__body--pad">
+          <!-- 图片 → Base64 的结果 -->
+          <template v-if="mode === 'to-b64'">
+            <template v-if="fileResult">
+              <textarea
+                class="code-out"
+                :value="fileResult.dataUri"
+                readonly
+                spellcheck="false"
+              ></textarea>
+              <div class="meta">
+                {{ fileResult.type }} · 原始 {{ formatBytes(fileResult.size) }} → Base64 约
+                {{ formatBytes(Math.ceil((rawBase64.length * 3) / 4)) }}
+              </div>
+              <div class="actions">
+                <AppButton @click="outCopied.writeText(fileResult.dataUri)">
+                  {{ outCopied.copied.value ? '已复制' : '复制 Data URI' }}
+                </AppButton>
+                <AppButton @click="rawCopied.writeText(rawBase64)">
+                  {{ rawCopied.copied.value ? '已复制' : '复制纯 Base64' }}
+                </AppButton>
+              </div>
+            </template>
+            <div v-else class="empty">
+              <div class="empty__title">结果将显示在这里</div>
+              <div class="empty__sub">在左侧选择或粘贴图片，自动转为 Base64</div>
             </div>
-            <div class="actions">
-              <AppButton @click="download">下载图片（.{{ parsed.ext }}）</AppButton>
+          </template>
+
+          <!-- Base64 → 图片的结果 -->
+          <template v-else>
+            <template v-if="parsed">
+              <div v-if="imgBroken" class="decode__broken">
+                图片解码失败：Base64 内容可能不完整或已损坏
+              </div>
+              <img
+                v-else
+                class="decode__img"
+                :src="parsed.dataUri"
+                alt="解码预览"
+                @error="onImgError"
+              />
+              <div class="meta">{{ parsed.mime }} · {{ formatBytes(parsed.bytes) }}</div>
+              <div class="actions">
+                <AppButton @click="download">下载图片（.{{ parsed.ext }}）</AppButton>
+              </div>
+            </template>
+            <div v-else class="empty">
+              <div class="empty__title">预览将显示在这里</div>
+              <div class="empty__sub">在左侧粘贴 Base64，自动解码为图片</div>
             </div>
           </template>
         </div>
@@ -257,6 +306,35 @@ function download() {
   color: var(--c-text-2);
 }
 
+/* 与文本工具一致的 分段切换 */
+.mode-switch {
+  display: inline-flex;
+  gap: 2px;
+  margin-left: 6px;
+  padding: 2px;
+  border-radius: 7px;
+  background: #eceef2;
+}
+
+.mode-switch__btn {
+  padding: 3px 13px;
+  border-radius: 5px;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--c-text-3);
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+}
+
+.mode-switch__btn:hover {
+  color: var(--c-text-2);
+}
+
+.mode-switch__btn--active {
+  background: #fff;
+  color: var(--c-accent);
+  box-shadow: 0 1px 2px rgba(20, 25, 35, 0.08);
+}
+
 .pane__spacer {
   flex: 1 1 auto;
 }
@@ -271,20 +349,23 @@ function download() {
   min-height: 0;
   display: flex;
   flex-direction: column;
+}
+
+.pane__body--pad {
   gap: 10px;
   padding: 14px;
   overflow: auto;
 }
 
-/* 左栏：拖放区 */
+/* 拖放区 */
 .drop {
-  position: relative;
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 170px;
+  margin: 14px;
   padding: 18px;
   border: 1.5px dashed var(--c-border);
   border-radius: 10px;
@@ -305,8 +386,13 @@ function download() {
 
 .drop__preview {
   max-width: 100%;
-  max-height: 150px;
+  max-height: 180px;
   border-radius: 8px;
+}
+
+.drop__name {
+  font-size: var(--fs-xs);
+  font-family: var(--font-mono);
 }
 
 .drop__title {
@@ -320,33 +406,36 @@ function download() {
   font-family: var(--font-mono);
 }
 
-.meta {
-  flex: 0 0 auto;
-  font-size: var(--fs-xs);
-  color: var(--c-text-3);
-  font-family: var(--font-mono);
-}
-
-.code-out,
-.code-in {
+/* 文本框 */
+.code-in,
+.code-out {
   flex: 1 1 auto;
-  min-height: 110px;
+  min-height: 120px;
   width: 100%;
   resize: none;
-  padding: 10px 12px;
-  border: 1px solid var(--c-border);
-  border-radius: 8px;
-  background: #fbfbfd;
+  border: 0;
+  outline: none;
+  padding: 16px 18px;
+  background: transparent;
   font-family: var(--font-mono);
   font-size: var(--fs-xs);
   line-height: 1.6;
   color: var(--c-text);
 }
 
-.code-in:focus {
-  outline: none;
-  border-color: var(--c-accent);
-  background: #fff;
+.code-out {
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  background: #fbfbfd;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.meta {
+  flex: 0 0 auto;
+  font-size: var(--fs-xs);
+  color: var(--c-text-3);
+  font-family: var(--font-mono);
 }
 
 .actions {
@@ -355,7 +444,30 @@ function download() {
   gap: 8px;
 }
 
-/* 右栏 */
+/* 空态与结果 */
+.empty {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--c-text-3);
+  text-align: center;
+}
+
+.empty__title {
+  font-size: var(--fs-code);
+  font-weight: 600;
+  color: var(--c-text-2);
+}
+
+.empty__sub {
+  max-width: 280px;
+  font-size: var(--fs-sm);
+  line-height: 1.65;
+}
+
 .decode__img {
   align-self: center;
   max-width: 100%;
