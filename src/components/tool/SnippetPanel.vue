@@ -115,7 +115,9 @@ const lineCount = computed(() => props.code.split('\n').length)
   line-height: 1.7;
   color: var(--c-text);
   white-space: pre;
-  overflow-x: auto;
+  /* 固定限高：最多占视口 60%，超出内部滚动，不把面板挤出屏幕 */
+  max-height: 60vh;
+  overflow: auto;
   tab-size: 2;
 }
 </style>
