@@ -20,6 +20,11 @@ const RAW_GROUPS = [
     name: '格式转换',
     items: ['json-xml'],
   },
+  {
+    id: 'color',
+    name: '颜色',
+    items: ['color-convert'],
+  },
 ]
 
 /** 渲染用结构：[{ id, name, items: [{ id, name }] }] */

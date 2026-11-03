@@ -86,6 +86,13 @@ export const TOOLS = {
     ],
   },
 
+  'color-convert': {
+    id: 'color-convert',
+    name: '颜色转换',
+    desc: '拾色器选色，HEX / RGB / HSL 三格式互查，支持粘贴 #HEX 或 rgb() 直接解析',
+    // 专属视图 ColorView 渲染，此处仅提供导航与页头文案
+  },
+
   'encode-base64': {
     id: 'encode-base64',
     name: 'Base64 编解码',

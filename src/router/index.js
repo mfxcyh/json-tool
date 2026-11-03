@@ -8,6 +8,13 @@ const routes = [
     redirect: `/${DEFAULT_TOOL_ID}`,
   },
   {
+    // 颜色工具有专属视图（拾色器 + 表单），不走 ToolView 的文本框框架
+    path: '/color-convert',
+    name: 'color-convert',
+    component: () => import('@/views/ColorView.vue'),
+    meta: { toolId: 'color-convert' },
+  },
+  {
     path: '/:toolId',
     name: 'tool',
     component: ToolView,

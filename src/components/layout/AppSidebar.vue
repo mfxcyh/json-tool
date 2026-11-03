@@ -9,7 +9,7 @@ const route = useRoute()
 const { isOpen, toggle, expand } = useNavigation()
 
 const groups = NAV_GROUPS
-const activeId = computed(() => String(route.params.toolId || ''))
+const activeId = computed(() => String(route.params.toolId || route.meta.toolId || ''))
 
 // 从其他入口带着参数跳进来时，确保所在分组是展开的
 watch(
