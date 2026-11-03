@@ -20,7 +20,9 @@ src/
 ├── router/index.js             路由（hash 模式，静态部署不 404）
 ├── config/
 │   ├── tools.js                工具注册表：名称/文案/示例/transform 逻辑
-│   └── navigation.js           二级导航结构，名称统一从 tools 取
+│   ├── navigation.js           二级导航结构，名称统一从 tools 取
+│   └── snippets.js             源码面板注册表（?raw 导入 snippets/ 文件）
+├── snippets/                   各工具的独立 JS 源码（粘贴即用版本）
 ├── composables/
 │   ├── useNavigation.js        分组折叠状态（localStorage 持久化）
 │   └── useClipboard.js         复制到剪贴板（含兜底）
@@ -35,15 +37,23 @@ src/
 ├── components/
 │   ├── layout/AppSidebar.vue   侧边栏容器
 │   ├── layout/NavGroup.vue     一级分组 + 二级项
-│   ├── tool/ToolHeader.vue     面包屑 + 标题 + 描述
-│   ├── tool/InputPanel.vue     输入区（含实时校验徽标、快捷键）
-│   ├── tool/OutputPanel.vue    输出区（高亮 / 行号 / 空态 / 复制）
-│   ├── tool/ErrorNotice.vue    错误提示（行列 + 出错字符标红）
-│   └── ui/                     AppButton、StatusBadge
+│   └── tool/
+│       ├── ToolPage.vue        通用工具页主体（按 toolId 取注册表配置）
+│       ├── ToolHeader.vue      面包屑 + 标题 + 描述
+│       ├── InputPanel.vue      输入区（含实时校验徽标、快捷键）
+│       ├── OutputPanel.vue     输出区（高亮 / 行号 / 空态 / 复制）
+│       ├── ErrorNotice.vue     错误提示（行列 + 出错字符标红）
+│       ├── SnippetPanel.vue    页面附带的「JS 源码」折叠面板
+│       └── ui/                 AppButton、StatusBadge
 └── views/
-    ├── ToolView.vue            通用工具页，按路由参数取工具
-    ├── ColorView.vue           颜色转换专属页（拾色器 + 表单联动）
-    ├── ImageBase64View.vue     图片 ⇄ Base64 专属页（拖放/粘贴 + 预览下载）
+    ├── JsonFormatView.vue      每个工具一个独立视图 + 独立路由
+    ├── JsonMinifyView.vue
+    ├── JsonEscapeView.vue
+    ├── EncodeBase64View.vue
+    ├── EncodeUrlView.vue
+    ├── JsonXmlView.vue
+    ├── ColorView.vue           颜色转换（拾色器 + 表单联动）
+    ├── ImageBase64View.vue     图片 ⇄ Base64（拖放/粘贴 + 预览下载）
     └── NotFoundView.vue
 ```
 

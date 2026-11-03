@@ -1,32 +1,63 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import { TOOLS, DEFAULT_TOOL_ID } from '@/config/tools'
-import ToolView from '@/views/ToolView.vue'
+import { DEFAULT_TOOL_ID } from '@/config/tools'
 
+/**
+ * 每个工具一条显式路由 + 一个独立视图文件：
+ * 想单独改某个页面的布局，直接改它自己的 view 即可，互不影响。
+ * 未注册的路径统一落 404（catch-all）。
+ */
 const routes = [
   {
     path: '/',
     redirect: `/${DEFAULT_TOOL_ID}`,
   },
   {
-    // 颜色工具有专属视图（拾色器 + 表单），不走 ToolView 的文本框框架
+    path: '/json-format',
+    name: 'json-format',
+    component: () => import('@/views/JsonFormatView.vue'),
+    meta: { toolId: 'json-format' },
+  },
+  {
+    path: '/json-minify',
+    name: 'json-minify',
+    component: () => import('@/views/JsonMinifyView.vue'),
+    meta: { toolId: 'json-minify' },
+  },
+  {
+    path: '/json-escape',
+    name: 'json-escape',
+    component: () => import('@/views/JsonEscapeView.vue'),
+    meta: { toolId: 'json-escape' },
+  },
+  {
+    path: '/encode-base64',
+    name: 'encode-base64',
+    component: () => import('@/views/EncodeBase64View.vue'),
+    meta: { toolId: 'encode-base64' },
+  },
+  {
+    path: '/encode-url',
+    name: 'encode-url',
+    component: () => import('@/views/EncodeUrlView.vue'),
+    meta: { toolId: 'encode-url' },
+  },
+  {
+    path: '/json-xml',
+    name: 'json-xml',
+    component: () => import('@/views/JsonXmlView.vue'),
+    meta: { toolId: 'json-xml' },
+  },
+  {
     path: '/color-convert',
     name: 'color-convert',
     component: () => import('@/views/ColorView.vue'),
     meta: { toolId: 'color-convert' },
   },
   {
-    // 图片 ⇄ Base64 也是文件型交互，走专属视图
     path: '/image-base64',
     name: 'image-base64',
     component: () => import('@/views/ImageBase64View.vue'),
     meta: { toolId: 'image-base64' },
-  },
-  {
-    path: '/:toolId',
-    name: 'tool',
-    component: ToolView,
-    // 工具 id 不存在就直接进 404，避免页面渲染空壳
-    beforeEnter: (to) => (TOOLS[to.params.toolId] ? true : { name: 'not-found' }),
   },
   {
     path: '/:pathMatch(.*)*',

@@ -1,6 +1,5 @@
 <script setup>
 import { computed, nextTick, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
 import { getTool, getGroupName } from '@/config/navigation'
 import { SNIPPETS } from '@/config/snippets'
 import { locateError, parseJsonSafe } from '@/utils/json'
@@ -12,13 +11,15 @@ import SnippetPanel from '@/components/tool/SnippetPanel.vue'
 /** 超过这个体量就不做实时校验，否则每次按键都要全量 parse */
 const LIVE_CHECK_LIMIT = 200000
 
-const route = useRoute()
+const props = defineProps({
+  /** 工具 id，与 TOOLS 注册表对应 */
+  toolId: { type: String, required: true },
+})
 
-const toolId = computed(() => String(route.params.toolId || ''))
-const tool = computed(() => getTool(toolId.value))
-const groupName = computed(() => getGroupName(toolId.value))
+const tool = computed(() => getTool(props.toolId))
+const groupName = computed(() => getGroupName(props.toolId))
 /** 工具附带的独立 JS 源码（没有则为 null，不渲染面板） */
-const snippet = computed(() => SNIPPETS[toolId.value] || null)
+const snippet = computed(() => SNIPPETS[props.toolId] || null)
 
 const input = ref('')
 const output = ref('')
@@ -103,17 +104,6 @@ watch(mode, () => {
   input.value = ''
   resetResult()
 })
-
-// 切换工具：清空输入与结果，并把方向重置为该工具的默认值
-watch(
-  toolId,
-  () => {
-    input.value = ''
-    resetResult()
-    mode.value = tool.value?.defaultMode || tool.value?.modes?.[0]?.key || ''
-  },
-  { immediate: true },
-)
 </script>
 
 <template>
