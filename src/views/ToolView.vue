@@ -2,10 +2,12 @@
 import { computed, nextTick, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { getTool, getGroupName } from '@/config/navigation'
+import { SNIPPETS } from '@/config/snippets'
 import { locateError, parseJsonSafe } from '@/utils/json'
 import ToolHeader from '@/components/tool/ToolHeader.vue'
 import InputPanel from '@/components/tool/InputPanel.vue'
 import OutputPanel from '@/components/tool/OutputPanel.vue'
+import SnippetPanel from '@/components/tool/SnippetPanel.vue'
 
 /** 超过这个体量就不做实时校验，否则每次按键都要全量 parse */
 const LIVE_CHECK_LIMIT = 200000
@@ -15,6 +17,8 @@ const route = useRoute()
 const toolId = computed(() => String(route.params.toolId || ''))
 const tool = computed(() => getTool(toolId.value))
 const groupName = computed(() => getGroupName(toolId.value))
+/** 工具附带的独立 JS 源码（没有则为 null，不渲染面板） */
+const snippet = computed(() => SNIPPETS[toolId.value] || null)
 
 const input = ref('')
 const output = ref('')
@@ -134,6 +138,8 @@ watch(
         :action-label="actionLabel"
       />
     </div>
+
+    <SnippetPanel v-if="snippet" :code="snippet" />
   </div>
 </template>
 
