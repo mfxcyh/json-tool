@@ -94,8 +94,11 @@ function clearAll() {
 // 输入一变，旧结果即过期，先清掉，避免误读
 watch(input, resetResult)
 
-// 切换方向后上一方向的结果同样作废
-watch(mode, resetResult)
+// 切换方向（编码/解码等）后，输入与上一方向的结果一并作废
+watch(mode, () => {
+  input.value = ''
+  resetResult()
+})
 
 // 切换工具：清空输入与结果，并把方向重置为该工具的默认值
 watch(
